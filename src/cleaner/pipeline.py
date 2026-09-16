@@ -113,7 +113,12 @@ def analyse_only(path: Path, policy: Policy) -> list[Removal]:
 
 def process(path: Path, policy: Policy, *, dry_run: bool, in_place: bool = False,
             output_dir: Path | None = None, reseal: bool = False,
-            context=None, base: Path | None = None) -> FileOutcome:
+            context=None, base: Path | None = None,
+            destination: Path | None = None) -> FileOutcome:
+    """``destination``, if given, is written to as-is instead of a destination
+    computed from ``in_place``/``output_dir`` -- the GUI's Save-As flow needs an
+    exact, user-chosen name that ``resolve_destination`` has no way to produce.
+    """
     ctx = context or offline_context()
     disposition, provenance = classify(path, reseal=reseal, signer_configured=False,
                                        context=ctx)
@@ -136,10 +141,17 @@ def process(path: Path, policy: Policy, *, dry_run: bool, in_place: bool = False
 
     outcome = FileOutcome(path, disposition, provenance,
                           removals=result.removals, preserved=result.preserved)
-    if dry_run or not result.changed:
+    if dry_run:
+        return outcome
+    if not result.changed and destination is None:
+        # Bulk paths (-o/--in-place) skip an unchanged file rather than write a
+        # pointless byte-identical copy. An explicit destination is a Save-As,
+        # though: the caller named an exact file it expects to exist afterwards,
+        # so it is still written even when there was nothing to remove.
         return outcome
 
-    destination = resolve_destination(path, in_place, output_dir, base)
+    if destination is None:
+        destination = resolve_destination(path, in_place, output_dir, base)
     atomic_write(destination, result.data, mode_from=path)
     outcome.written = destination
     return outcome

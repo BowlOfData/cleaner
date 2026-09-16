@@ -15,7 +15,14 @@ from tkinter import filedialog, messagebox
 from typing import Iterable
 
 from .files.base import Policy
-from .pipeline import run
+from .pipeline import process, run
+from .report import REFUSALS, Report
+
+#: Shown when a file is refused for carrying C2PA Content Credentials -- the
+#: one refusal reason a GUI user can't do anything about from this window (see
+#: REFUSALS in report.py; an unsupported file type or a scrub error is a
+#: different problem and keeps the fuller report text instead).
+PROTECTED_ALERT = "This file is protected and cannot be cleaned up"
 
 try:
     from tkinterdnd2 import DND_FILES, TkinterDnD
@@ -84,10 +91,29 @@ class App(_Base):
         if not self.queued:
             messagebox.showinfo("cleaner", "Import files first.")
             return
-        out_dir = filedialog.askdirectory(title="Export cleaned files to")
-        if not out_dir:
-            return
-        report = run(self.queued, Policy(), dry_run=False, output_dir=Path(out_dir))
+
+        if len(self.queued) == 1:
+            source = self.queued[0]
+            chosen = filedialog.asksaveasfilename(
+                title="Export cleaned file as",
+                initialdir=str(source.parent),
+                initialfile=f"{source.stem}.cleaned{source.suffix}",
+            )
+            if not chosen:
+                return
+            outcome = process(source, Policy(), dry_run=False, destination=Path(chosen))
+            if outcome.disposition in REFUSALS:
+                messagebox.showerror("cleaner", PROTECTED_ALERT)
+                return
+            report = Report(outcomes=[outcome])
+        else:
+            out_dir = filedialog.askdirectory(title="Export cleaned files to")
+            if not out_dir:
+                return
+            report = run(self.queued, Policy(), dry_run=False, output_dir=Path(out_dir))
+            if any(o.disposition in REFUSALS for o in report.outcomes):
+                messagebox.showerror("cleaner", PROTECTED_ALERT)
+
         messagebox.showinfo("cleaner", report.to_text(verbose=False))
         self.queued.clear()
         self.listbox.delete(0, "end")

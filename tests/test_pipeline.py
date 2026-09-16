@@ -52,6 +52,48 @@ def test_scrub_writes_beside_source_by_default(corpus, tmp_path):
     assert staged.read_bytes() == (corpus / "phone.jpg").read_bytes()
 
 
+def test_explicit_destination_overrides_default_naming(corpus, tmp_path):
+    """The GUI's Save-As flow needs an arbitrary chosen name, not the
+    <name>.cleaned<ext> convention -- passing destination= must bypass it."""
+    staged = tmp_path / "phone.jpg"
+    shutil.copy(corpus / "phone.jpg", staged)
+    chosen = tmp_path / "renamed-output.jpg"
+
+    outcome = process(staged, Policy(), dry_run=False, destination=chosen)
+
+    assert outcome.written == chosen
+    assert chosen.exists()
+    assert not (tmp_path / "phone.cleaned.jpg").exists()
+
+
+def test_explicit_destination_writes_even_when_nothing_changed(tmp_path):
+    """A Save-As destination is a promise the caller can rely on: the file that
+    was just processed exists there afterwards, even for a source with nothing
+    to remove. The bulk -o/--in-place paths skip that write on purpose (see
+    resolve_destination) -- this only applies when destination= is explicit."""
+    staged = tmp_path / "plain.jpg"
+    staged.write_bytes(bytes.fromhex("ffd8") + bytes.fromhex("ffd9"))
+    chosen = tmp_path / "renamed.jpg"
+
+    outcome = process(staged, Policy(), dry_run=False, destination=chosen)
+
+    assert not outcome.removals
+    assert outcome.written == chosen
+    assert chosen.read_bytes() == staged.read_bytes()
+
+
+def test_explicit_destination_is_ignored_on_refusal(corpus, tmp_path):
+    staged = tmp_path / "signed.jpg"
+    shutil.copy(corpus / "signed.jpg", staged)
+    chosen = tmp_path / "renamed-output.jpg"
+
+    outcome = process(staged, Policy(), dry_run=False, destination=chosen)
+
+    assert outcome.refused
+    assert outcome.written is None
+    assert not chosen.exists()
+
+
 def test_in_place_follows_symlinks(corpus, tmp_path):
     """os.replace on a symlink path would swap the link for a regular file,
     silently detaching it from its target."""
