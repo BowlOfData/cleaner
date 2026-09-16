@@ -1,0 +1,49 @@
+% !TeX root = /Users/marco/thesis/paper.tex
+% !TeX program = pdflatex
+\documentclass{article}
+\usepackage{listings}
+\usepackage{hyperref}
+\usepackage{changes}
+
+\author{Marco Parrillo\thanks{Initech Holdings}}
+\date{2024-03-11}
+\email{marco@example.invalid}
+\hypersetup{
+  pdftitle={Quarterly numbers},
+  pdfauthor={Marco Parrillo},
+  pdfcreator={ACME Writer 9},
+  pdfsubject={internal},
+  colorlinks=true,
+  dcterms:provenance={https://example.invalid/manifest.c2pa}
+}
+
+\begin{document}
+\maketitle
+
+Revenue was flat. Margin rose 100\% year on year.
+
+See \url{https://example.invalid/a%20b/c} and \href{https://x.invalid/%41}{the note}.
+
+\includegraphics{/Users/marco/Desktop/figure.png}
+
+\newcommand{\joined}{tight}%  a trailing comment that eats the newline
+   follows immediately.
+
+\begin{lstlisting}
+# 50% of the time it works every time
+print("\verb is inert here")
+\end{lstlisting}
+
+Inline \verb|100%| and \lstinline{a % b} stay put.
+
+\added[id=MP]{New paragraph.}
+\deleted[id=DW]{Old paragraph.}
+\todo[author=MP]{check this before submitting}
+
+\begin{comment}
+Reviewer 2 is wrong and I will say so in the rebuttal.
+\end{comment}
+
+\end{document}
+\endinput
+Draft notes nobody was meant to read: the Initech deal closes in April.
