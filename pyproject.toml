@@ -11,10 +11,8 @@ dependencies = [
     "c2pa-python>=0.37.0",
     "pikepdf>=10.0",
     "defusedxml>=0.7.1",
+    "tkinterdnd2>=0.4.2",
 ]
-
-[project.optional-dependencies]
-gui = ["tkinterdnd2>=0.4.2"]
 
 [project.scripts]
 cleaner = "cleaner.cli:main"

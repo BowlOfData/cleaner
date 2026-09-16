@@ -258,10 +258,6 @@ dependencies = [
     { name = "c2pa-python" },
     { name = "defusedxml" },
     { name = "pikepdf" },
-]
-
-[package.optional-dependencies]
-gui = [
     { name = "tkinterdnd2" },
 ]
 
@@ -278,9 +274,8 @@ requires-dist = [
     { name = "c2pa-python", specifier = ">=0.37.0" },
     { name = "defusedxml", specifier = ">=0.7.1" },
     { name = "pikepdf", specifier = ">=10.0" },
-    { name = "tkinterdnd2", marker = "extra == 'gui'", specifier = ">=0.4.2" },
+    { name = "tkinterdnd2", specifier = ">=0.4.2" },
 ]
-provides-extras = ["gui"]
 
 [package.metadata.requires-dev]
 dev = [

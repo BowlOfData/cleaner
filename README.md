@@ -44,12 +44,13 @@ uv run cleaner gui         # or: uv run cleaner-gui
 Two buttons — **Import** and **Clean** — plus a listbox that also accepts files
 dropped onto it. Import queues files via the native file picker; Clean asks for
 an export folder and runs the same `scrub` pipeline as the CLI, with default
-settings (no `--strip-dates`/`--strip-revisions`). It is built on tkinter, part
-of the Python standard library, so the same code runs on macOS, Windows and
-Linux with no platform-specific branch. Drag-and-drop needs the optional
-`tkinterdnd2` package (`uv sync --extra gui`); without it the window still
-works, just via Import only. The CLI itself never imports tkinter, so `inspect`,
-`scrub` and `text` have no GUI dependency at all.
+settings (no `--strip-dates`/`--strip-revisions`). It is built on tkinter (part
+of the Python standard library) plus `tkinterdnd2` for drag-and-drop, both of
+which ship prebuilt for macOS, Windows and Linux, so the same code runs
+everywhere with no platform-specific branch. If `tkinterdnd2` is ever
+unavailable at runtime the window still opens, just via Import only. The `cli`
+module itself never imports tkinter, so `inspect`, `scrub` and `text` run
+without touching the GUI stack at all.
 
 ## What it does
 
